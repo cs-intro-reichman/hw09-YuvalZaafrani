@@ -39,7 +39,7 @@ public class List {
         sb.append("[");
         Node current = first;
         while (current != null) {
-            sb.append(current.cp.getChr());
+            sb.append(current.cp);
             if (current.next != null) {
                 sb.append(", ");
             }
