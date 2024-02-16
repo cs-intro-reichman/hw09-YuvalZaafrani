@@ -12,7 +12,7 @@ public class CharData {
 	// a probability (number between 0 and 1)
 	double p;    
 
-	// a commulative probability (number between 0 and 1)
+	// a cumulative probability (number between 0 and 1)
 	double cp;
 
 	/** Creates and initializes a character data object. */
@@ -27,9 +27,42 @@ public class CharData {
 	public boolean equals(char chr) {
 		return this.chr == chr;
 	}
-	
+
+	public char getChr() {
+		return chr;
+	}
+
+	/** Returns the count of occurrences of this character. */
+	public int getCount() {
+		return count;
+	}
+
+	/** Returns the cumulative probability of this character. */
+	public double getCp() {
+		return cp;
+	}
+
+	/** Sets the cumulative probability of this character. */
+	public void setCp(double cp) {
+		this.cp = cp;
+	}
+
+	/** Returns the probability of this character. */
+	public double getP() {
+		return p;
+	}
+
+	/** Sets the probability of this character. */
+	public void setP(double p) {
+		this.p = p;
+	}
+
 	/** Returns a textual representation of this CharData object. */
 	public String toString() {
 		return "(" + chr + " " + count + " " + p + " " + cp + ")";
+	}
+
+	public void incrementCounter() {
+		count++;
 	}
 }
