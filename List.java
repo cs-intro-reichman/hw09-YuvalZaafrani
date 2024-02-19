@@ -37,13 +37,12 @@ public class List {
     public String toString() {
         StringBuilder sb = new StringBuilder();
         Node current = first;
+        sb.append("(");
         while (current != null) {
             sb.append(current.cp.toString()); 
-            if (current.next != null) {
-                sb.append(", ");
-            }
             current = current.next;
         }
+        sb.append(")");
         return sb.toString();
     }
 
