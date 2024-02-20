@@ -24,7 +24,7 @@ public class LanguageModel {
     public LanguageModel(int windowLength, int seed) {
         this.windowLength = windowLength;
         randomGenerator = new Random(seed);
-        CharDataMap = new HashMap<>();
+        CharDataMap = new HashMap<String, List>();
     }
 
     /**
@@ -35,27 +35,32 @@ public class LanguageModel {
     public LanguageModel(int windowLength) {
         this.windowLength = windowLength;
         randomGenerator = new Random();
-        CharDataMap = new HashMap<>();
+        CharDataMap = new HashMap<String, List>();
     }
 
     /** Builds a language model from the text in the given file (the corpus). */
-    public void train(String fileName) {
-        try (BufferedReader br = new BufferedReader(new FileReader(fileName))) {
-            String line;
-            while ((line = br.readLine()) != null) {
-                line = line.toLowerCase();
-                for (int i = 0; i <= line.length() - windowLength; i++) {
-                    String window = line.substring(i, i + windowLength);
-                    char nextChar = (i + windowLength < line.length()) ? line.charAt(i + windowLength) : '\0';
-                    if (!CharDataMap.containsKey(window)) {
-                        CharDataMap.put(window, new List());
-                    }
-                    CharDataMap.get(window).update(nextChar);
+      public void train(String fileName) {
+        In inputFile = new In(fileName);
+        String wholeFileString = "";
+        wholeFileString = inputFile.readAll();
+        for (int i = 0; i + windowLength < wholeFileString.length(); i++) {
+
+            String key = wholeFileString.substring(i, i + windowLength);
+            List value = CharDataMap.get(key);
+            if (value != null) {
+                if (value.indexOf(wholeFileString.charAt(i + windowLength)) != -1) {
+                    value.update(wholeFileString.charAt(i + windowLength));
+
+                } else {
+                    value.addFirst(wholeFileString.charAt(i + windowLength));
                 }
+            } else {
+                CharDataMap.put(key, new List());
+                CharDataMap.get(key).addFirst(wholeFileString.charAt(i + windowLength));
             }
-        } catch (IOException e) {
-            e.printStackTrace();
+            calculateProbabilities(CharDataMap.get(key));
         }
+
     }
 
     // Computes and sets the probabilities (p and cp fields) of all the
@@ -100,22 +105,14 @@ public class LanguageModel {
      * @param numberOfLetters - the size of text to generate
      * @return the generated text
      */
-    public String generate(String initialText, int numberOfLetters) {
-        StringBuilder generatedText = new StringBuilder(initialText.toLowerCase());
-        String lastWindow = initialText.toLowerCase();
-
-        while (generatedText.length() < numberOfLetters) {
-            if (CharDataMap.containsKey(lastWindow)) {
-                List probs = CharDataMap.get(lastWindow);
-                char nextChar = getRandomChar(probs);
-                generatedText.append(nextChar);
-                lastWindow = lastWindow.substring(1) + nextChar;
-            } else {
-                break;
+    public String generate(String initialText, int textLength) {
+        if (initialText.length() >= windowLength) {
+            for (int i = 0; i < textLength; i++) {
+                initialText += getRandomChar(
+                        CharDataMap.get(initialText.substring(initialText.length() - windowLength)));
             }
         }
-
-        return generatedText.toString();
+        return initialText;
     }
 
     /**
@@ -148,15 +145,15 @@ public class LanguageModel {
         System.out.println(lm.generate(initialText, generatedTextLength));
     }
 
-    public static void main2(String[] args) {
-        String str = "committee ";
-        List x = new List();
-        for (int i = 0; i < str.length(); i++) {
-            x.update(str.charAt(i));
-        }
-        LanguageModel lm = new LanguageModel(1);
-        lm.calculateProbabilities(x);
-        System.out.println(x);
+        // public static void main2(String[] args) {
+        //     String str = "committee ";
+        //     List x = new List();
+        //     for (int i = 0; i < str.length(); i++) {
+        //         x.update(str.charAt(i));
+        //     }
+        //     LanguageModel lm = new LanguageModel(1);
+        //     lm.calculateProbabilities(x);
+        //     System.out.println(x);
 
-    }
+        // }
 }
